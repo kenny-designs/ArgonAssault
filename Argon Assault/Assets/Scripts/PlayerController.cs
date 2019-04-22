@@ -3,20 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
-public class Player : MonoBehaviour {
-  [Tooltip("In ms^-1")][SerializeField] float speed = 20f;
+public class PlayerController : MonoBehaviour {
+  [Header("General")]
+  [Tooltip("In ms^-1")][SerializeField] float controlSpeed = 20f;
   [Tooltip("In m")][SerializeField] float xRange = 5f;
   [Tooltip("In m")][SerializeField] float yRange = 3f;
 
+  [Header("Screen-position Based")]
   [SerializeField] float positionPitchFactor = -5f;
   [SerializeField] float positionYawFactor = 5f;
 
+  [Header("Control-throw Based")]
   [SerializeField] float controlPitchFactor = -20f;
   [SerializeField] float controlRollFactor = -20f;
 
   float xThrow, yThrow;
+  bool isControlsEnabled = true;
 
   void Update() {
+    if (!isControlsEnabled) { return; }
+
     ProcessTranslation();
     ProcessRotation();
   }
@@ -25,8 +31,8 @@ public class Player : MonoBehaviour {
     xThrow = CrossPlatformInputManager.GetAxis("Horizontal");
     yThrow = CrossPlatformInputManager.GetAxis("Vertical");
 
-    float xOffset = xThrow * speed * Time.deltaTime;
-    float yOffset = yThrow * speed * Time.deltaTime;
+    float xOffset = xThrow * controlSpeed * Time.deltaTime;
+    float yOffset = yThrow * controlSpeed * Time.deltaTime;
 
     float rawXPos = Mathf.Clamp(xOffset + transform.localPosition.x, -xRange, xRange);
     float rawYPos = Mathf.Clamp(yOffset + transform.localPosition.y, -yRange, yRange); 
@@ -46,5 +52,10 @@ public class Player : MonoBehaviour {
 
     float roll = xThrow * controlRollFactor;
     transform.localRotation = Quaternion.Euler(pitch, yaw, roll);
+  }
+
+  // called by string reference
+  private void OnPlayerDeath() {
+    isControlsEnabled = false;
   }
 }
