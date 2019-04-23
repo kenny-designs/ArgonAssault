@@ -6,9 +6,13 @@ using UnityEngine;
 public class Enemy : MonoBehaviour {
   [SerializeField] GameObject deathFX;
   [SerializeField] Transform parent;
+  [SerializeField] int scorePerHit = 12;
+
+  ScoreBoard scoreBoard;
 
   private void Start() {
     AddNonTriggerBoxCollider();
+    scoreBoard = FindObjectOfType<ScoreBoard>();
   }
 
   // creating our own collider at run-time for 3rd party assets helps to
@@ -19,6 +23,7 @@ public class Enemy : MonoBehaviour {
   }
 
   private void OnParticleCollision(GameObject other) {
+    scoreBoard.ScoreHit(scorePerHit);
     GameObject fx = Instantiate(deathFX, transform.position, Quaternion.identity);
     fx.transform.SetParent(parent);
     Destroy(gameObject);
